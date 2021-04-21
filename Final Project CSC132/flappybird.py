@@ -6,6 +6,7 @@
 #  Fisher Hall
 # Purpose: Flappy Bird Game where player controls 3 inputs
 #############################
+
 import math
 import pygame
 import os
@@ -21,7 +22,7 @@ windowHeight= 512
 # Bird class that controls all attributes associated with the bird
 class Bird(pygame.sprite.Sprite):
     WIDTH = 32              # Width of bird image
-    HEIGHT = 32             # Height of Bird image
+    HEIGHT = 32             # Height of bird image
     sinkSpeed = 0.14        # How fast the bird falls
     climbSpeed = 0.2        # How much the bird climbs from one 'flap'
     climbDuration = 300.0   # How long it takes bird to complete one 'flap'
@@ -30,39 +31,36 @@ class Bird(pygame.sprite.Sprite):
         super(Bird,self).__init__()
         self.x = x
         self.y = y
-        self.climbMsec = climbMsec
-        self.birdimage = images
-        self.maskbird = pygame.mask.from_surface(self.birdimage)
+        self.climbMsec = climbMsec  # Milliseconds left to complete a climb
+        self.birdimage = images # Images for the bird
+        self.maskbird = pygame.mask.from_surface(self.birdimage) # Mask of birdimage used for collision purposes
 
-    def updatePos(self, deltaFrames = 1):
-        if self.climbMsec > 0:
+    def updatePos(self, deltaFrames = 1):   # Function that keeps tracks of birds movement
+        if self.climbMsec > 0:  # When the "flap" is initiated climbMsec is set equal to specified duration and the flap begins
             fracOfclimb = 1 - self.climbMsec/Bird.climbDuration
             self.y -= (Bird.climbSpeed * ((deltaFrames/FPS)*1000) * 
-                    (1- math.cos(fracOfclimb * math.pi)))
+                    (1- math.cos(fracOfclimb * math.pi)))          # The path for a flap uses the cos function to allow the bird a smooth climb
             self.climbMsec -= ((deltaFrames/FPS)*1000)
-        else:
+        else:   # If a "flap" hasn't been initiated then the bird sinks
             self.y += Bird.sinkSpeed * (1000*(deltaFrames/FPS))
     
     @property
-    def image(self):
-        return self.birdimage
-
-    @property
-    def mask(self):
+    def mask(self):     # Returns the bird mask for collision purposes
         return self.maskbird
     
     @property
-    def rect(self):
+    def rect(self):     # Returns a rectangle that keeps up the position and size of the bird
         return Rect(self.x, self.y, Bird.WIDTH, Bird.HEIGHT)
 
+# Pipe Class that controls all Pipe attributes and houses the function that detects collision
 class Pipes(pygame.sprite.Sprite):
-    width = 80
-    pieceheight = 32
-    addInterval = 3000
+    width = 80          # Width of Pipe piece
+    pieceheight = 32    # Height of Pipe piece
+    addInterval = 3000  # Interval of time that must pass before adding in a new pipe
 
     def __init__(self, pipeEndImage, pipeBodyImage):
-        self.x = float(windowWidth - 1)
-        self.scoreCounted = False
+        self.x = float(windowWidth - 1) # X coordinate of a pipe
+        self.scoreCounted = False       # Boolean that helps keep track of score for pipe pair
 
         self.image = pygame.Surface((Pipes.width, windowHeight), SRCALPHA)
         self.image.convert()
@@ -170,14 +168,15 @@ def main():
             displaySurface.blit(i.image, i.rect)
         
         bird.updatePos()
-        displaySurface.blit(bird.image, bird.rect)
+        displaySurface.blit(bird.birdimage, bird.rect)
 
-        # update and display score
+        # If the bird's X coord makes it past the pipe, increment the score and stop counting score for that pipe
         for k in pipes :
             if k.x + Pipes.width < bird.x and not k.scoreCounted:
                 score += 1
                 k.scoreCounted = True
         
+        # Setup the display for the score
         scoreSurface = scoreFont.render(str(score), True, (255, 255, 255))
         scoreX = windowWidth/2 - scoreSurface.get_width()/2
         displaySurface.blit(scoreSurface, (scoreX, Pipes.pieceheight))
@@ -190,6 +189,5 @@ def main():
 if __name__ == '__main__':
     main()
 
-    
             
 
