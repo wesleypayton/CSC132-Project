@@ -10,13 +10,19 @@
 import math
 import pygame
 import os
+import RPi.GPIO as GPIO
 from pygame.locals import *
 from random import randint
 from collections import deque
 
-FPS = 60
+button = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+
+FPS = 60                
 pixelSpeed = 0.15       # Speed at which the game plays
-windowWidth = 284 * 2
+windowWidth = 284 * 2   # Size of window
 windowHeight= 512
 
 # Bird class that controls all attributes associated with the bird
@@ -61,30 +67,25 @@ class Pipes(pygame.sprite.Sprite):
     def __init__(self, pipeEndImage, pipeBodyImage):
         self.x = float(windowWidth - 1) # X coordinate of a pipe
         self.scoreCounted = False       # Boolean that helps keep track of score for pipe pair
-
-        self.image = pygame.Surface((Pipes.width, windowHeight), SRCALPHA)
-        self.image.convert()
-        self.image.fill((0,0,0,0))
-        totalPipeBodyPieces = int(
-            (windowHeight - 
-            3 * Bird.HEIGHT -
+        self.image = pygame.Surface((Pipes.width, windowHeight), SRCALPHA) # sets up image for pipes
+        totalPipeBodyPieces = int(      # Fills top and bottom with pipes
+            (windowHeight - 3 * Bird.HEIGHT -   # and makes a gap for the bird
             3 * Pipes.pieceheight) / Pipes.pieceheight)
-
         self.bottomPieces = randint(1, totalPipeBodyPieces)
         self.topPieces = totalPipeBodyPieces - self.bottomPieces
 
         # Bottom Pipe
-        for i in range(1, self.bottomPieces + 1):
+        for i in range(1, self.bottomPieces + 1):   # centers bottom pipe body
             piecePos = (0, windowHeight - i*Pipes.pieceheight)
             self.image.blit(pipeBodyImage, piecePos)
-        bottomPipeY = windowHeight - (self.bottomPieces * Pipes.pieceheight)
-        bottomPiecePos = (0, bottomPipeY - Pipes.pieceheight)
+        bottomPipeY = windowHeight - (self.bottomPieces * Pipes.pieceheight)  # Sets proper y position
+        bottomPiecePos = (0, bottomPipeY - Pipes.pieceheight) # centers bottom pipe end
         self.image.blit(pipeEndImage, bottomPiecePos)
 
         # Top Pipe
-        for i in range(self.topPieces):
-            self.image.blit(pipeBodyImage, (0, i * Pipes.pieceheight))
-        topPipeY = (self.topPieces * Pipes.pieceheight)
+        for i in range(self.topPieces): # center top pipe body
+            self.image.blit(pipeBodyImage, (0, i * Pipes.pieceheight)) 
+        topPipeY = (self.topPieces * Pipes.pieceheight) # set proper y position
         self.image.blit(pipeEndImage, (0, topPipeY))
 
         # Compensate for End Pieces
@@ -107,7 +108,7 @@ class Pipes(pygame.sprite.Sprite):
     def collisionCheck(self, bird):
         return pygame.sprite.collide_mask(self, bird)
 
-def loadImages():   
+def loadImages():   # function to load images from images folder
     def loadImage(imageFileName):
         fileName = os.path.join(os.path.dirname(__file__),'images',imageFileName)
         image = pygame.image.load(fileName)
@@ -118,52 +119,60 @@ def loadImages():
             'pipeEndImage': loadImage('pipeendimage.png'),
             'background': loadImage('background.png')}
 
+# main function that houses the game logic
 def main():
     pygame.init()
-    displaySurface = pygame.display.set_mode((windowWidth, windowHeight))
-    pygame.display.set_caption('Pygame Flappy Bird')
+    displaySurface = pygame.display.set_mode((windowWidth, windowHeight)) # setup display
+    pygame.display.set_caption('Flappy Bird') # set window title
 
-    clock = pygame.time.Clock()
-    scoreFont = pygame.font.SysFont(None, 32, bold=True)
-    images = loadImages()
+    clock = pygame.time.Clock() # create clock to track ticks
+    scoreFont = pygame.font.SysFont(None, 32, bold=True) # set default font
+    images = loadImages() # setup images
 
+    # create bird instance and center on screen
     bird = Bird(50, int(windowHeight/2 - Bird.HEIGHT/2), 2, (images['birdimage']))
-    pipes = deque()
 
+    pipes = deque() # sets pipes as a double sided queue for easy removing and adding
+
+    # start clock and score at 0
     frameClock = 0
     score = 0
+
     done = paused = False
-    while not done:
-        clock.tick(FPS)
+    while not done: # while game is running
+        clock.tick(FPS) # tick clock according to fps
 
         if not (paused or frameClock % ((FPS * Pipes.addInterval)/1000)):
             pipeImages = Pipes(images['pipeEndImage'], images['pipeBodyImage'])
             pipes.append(pipeImages)
-        
+
+        if (GPIO.input(button) == GPIO.HIGH):
+            bird.climbMsec = Bird.climbDuration
+            
         for i in pygame.event.get():
             if i.type == QUIT or (i.type == KEYUP and i.key == K_ESCAPE):
                 done = True
                 break
             elif i.type == KEYUP and i.key in (K_PAUSE, K_p):
                 paused = not paused
-            elif i.type == MOUSEBUTTONUP or (i.type == KEYUP and i.key in (k_UP, K_RETURN, K_SPACE)):
+            elif i.type == MOUSEBUTTONUP or (i.type == KEYUP and i.key in (K_UP, K_RETURN, K_SPACE)):
                 bird.climbMsec = Bird.climbDuration
             
         if paused:
                 continue
 
-        # check for collisions
+        # if pipe collision is true at any point or bird out of bounds end the game
         pipeCollision = any(k.collisionCheck(bird) for k in pipes)
         if pipeCollision or 0 >= bird.y or bird.y >= windowHeight - Bird.HEIGHT:
             done = True
             
-        for x in (0, windowWidth / 2):
+        for x in (0, windowWidth / 2):  # blit background to fit window
             displaySurface.blit(images['background'], (x,0))
 
-        while pipes and not pipes[0].visible:
+        while pipes and not pipes[0].visible:   # remove pipe once off screen
             pipes.popleft()
 
-        for i in pipes:
+        for i in pipes: 
             i.update()
             displaySurface.blit(i.image, i.rect)
         
