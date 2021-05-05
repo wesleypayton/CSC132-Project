@@ -15,6 +15,22 @@ from pygame.locals import *
 from random import randint
 from collections import deque
 from time import sleep
+from tkinter import *
+
+class App(Frame):
+    def __init__(self,master):
+        Frame.__init__(self,master)
+        self.button1 = Button(master, bg="Yellow", font="Helvetica", command=lambda: os.system("Flappy Bird.py"))
+        self.button1.config(text="Play game", command=self.quit)
+        self.button1.grid(row=0,column=0)
+        self.button2 = Button(master, bg="Yellow", font="Helvetica")
+        self.button2.config(text="Difficulty")
+        self.button2.grid(row=1,column=0)
+
+window = Tk()
+window.geometry("550x300")
+myApp = App(window)
+window.mainloop()
 
 button = 17
 GPIO.setmode(GPIO.BCM)
