@@ -148,8 +148,12 @@ def main():
             pipeImages = Pipes(images['pipeEndImage'], images['pipeBodyImage'])
             pipes.append(pipeImages)
 
-        if (GPIO.input(button) == GPIO.HIGH):
+        if (GPIO.input(button) == GPIO.LOW):
+            notPushed = True
+
+        if (GPIO.input(button) == GPIO.HIGH) and notPushed:
             bird.climbMsec = Bird.climbDuration
+            notPushed = False
             
         for i in pygame.event.get():
             if i.type == QUIT or (i.type == KEYUP and i.key == K_ESCAPE):
