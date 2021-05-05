@@ -14,6 +14,7 @@ import RPi.GPIO as GPIO
 from pygame.locals import *
 from random import randint
 from collections import deque
+from tkinter import *
 
 button = 17
 GPIO.setmode(GPIO.BCM)
@@ -199,6 +200,21 @@ def main():
         frameClock += 1
     print('Game Over! Score: %i' % score)
     pygame.quit()
+
+class App(Frame):
+    def __init__(self,master):
+        Frame.__init__(self,master)
+        self.button1 = Button(master, bg="Yellow", font="Helvetica", command=main)
+        self.button1.config(text="Play game")
+        self.button1.grid(row=0,column=0)
+        self.button2 = Button(master, bg="Yellow", font="Helvetica")
+        self.button2.config(text="Difficulty")
+        self.button2.grid(row=1,column=0)
+
+window = Tk()
+window.geometry("550x300")
+myApp = App(window)
+window.mainloop()
 
 if __name__ == '__main__':
     main()
