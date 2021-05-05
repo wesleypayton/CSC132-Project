@@ -14,29 +14,12 @@ import RPi.GPIO as GPIO
 from pygame.locals import *
 from random import randint
 from collections import deque
-from time import sleep
-from tkinter import *
-
-class App(Frame):
-    def __init__(self,master):
-        Frame.__init__(self,master)
-        self.button1 = Button(master, bg="Yellow", font="Helvetica", command=lambda: os.system("Flappy Bird.py"))
-        self.button1.config(text="Play game", command=self.quit)
-        self.button1.grid(row=0,column=0)
-        self.button2 = Button(master, bg="Yellow", font="Helvetica")
-        self.button2.config(text="Difficulty")
-        self.button2.grid(row=1,column=0)
-
-window = Tk()
-window.geometry("550x300")
-myApp = App(window)
-window.mainloop()
 
 button = 17
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-DEBUG = True
+DEBUG = False
 
 FPS = 60             
 pixelSpeed = 0.18       # Speed at which the game plays
@@ -163,13 +146,13 @@ def main():
         if not (paused or frameClock % ((FPS * Pipes.addInterval)/1000)):
             pipeImages = Pipes(images['pipeEndImage'], images['pipeBodyImage'])
             pipes.append(pipeImages)
-
+            
         if (GPIO.input(button) == GPIO.LOW):
             notPushed = True
-
+            
         if (GPIO.input(button) == GPIO.HIGH) and notPushed:
-            bird.climbMsec = Bird.climbDuration
-            notPushed = False
+                bird.climbMsec = Bird.climbDuration
+                notPushed = False
             
         for i in pygame.event.get():
             if i.type == QUIT or (i.type == KEYUP and i.key == K_ESCAPE):
