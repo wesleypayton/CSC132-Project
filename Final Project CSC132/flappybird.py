@@ -14,16 +14,18 @@ import RPi.GPIO as GPIO
 from pygame.locals import *
 from random import randint
 from collections import deque
+from time import sleep
 
 button = 17
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
+DEBUG = True
 
-FPS = 60                
-pixelSpeed = 0.15       # Speed at which the game plays
-windowWidth = 284 * 2   # Size of window
-windowHeight= 512
+FPS = 60             
+pixelSpeed = 0.18       # Speed at which the game plays
+windowWidth = 400 * 2   # Size of window
+windowHeight= 480
 
 # Bird class that controls all attributes associated with the bird
 class Bird(pygame.sprite.Sprite):
@@ -62,7 +64,7 @@ class Bird(pygame.sprite.Sprite):
 class Pipes(pygame.sprite.Sprite):
     width = 80          # Width of Pipe piece
     pieceheight = 32    # Height of Pipe piece
-    addInterval = 3000  # Interval of time that must pass before adding in a new pipe
+    addInterval = 2000  # Interval of time that must pass before adding in a new pipe
 
     def __init__(self, pipeEndImage, pipeBodyImage):
         self.x = float(windowWidth - 1) # X coordinate of a pipe
@@ -122,7 +124,7 @@ def loadImages():   # function to load images from images folder
 # main function that houses the game logic
 def main():
     pygame.init()
-    displaySurface = pygame.display.set_mode((windowWidth, windowHeight)) # setup display
+    displaySurface = pygame.display.set_mode((windowWidth,windowHeight), pygame.FULLSCREEN) # setup display
     pygame.display.set_caption('Flappy Bird') # set window title
 
     clock = pygame.time.Clock() # create clock to track ticks
@@ -163,7 +165,7 @@ def main():
 
         # if pipe collision is true at any point or bird out of bounds end the game
         pipeCollision = any(k.collisionCheck(bird) for k in pipes)
-        if pipeCollision or 0 >= bird.y or bird.y >= windowHeight - Bird.HEIGHT:
+        if (pipeCollision or 0 >= bird.y or bird.y >= windowHeight - Bird.HEIGHT) and not DEBUG:
             done = True
             
         for x in (0, windowWidth / 2):  # blit background to fit window
