@@ -22,19 +22,12 @@ GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 DEBUG = False
 
-difficulty = "medium"
 FPS = 60
-if difficulty == "easy":
-    pixelSpeed = 0.14
-elif difficulty == "medium":
-    pixelSpeed = 0.18
-elif difficulty == "hard":
-    pixelSpeed = 0.45
 
-
-#pixelSpeed = 0.18       # Speed at which the game plays
+pixelSpeed = 0.19       # Speed at which the game plays
 windowWidth = 400 * 2   # Size of window
 windowHeight= 480
+addInterval = 1800      # Speed at which pipes are added
 
 # Bird class that controls all attributes associated with the bird
 class Bird(pygame.sprite.Sprite):
@@ -73,7 +66,6 @@ class Bird(pygame.sprite.Sprite):
 class Pipes(pygame.sprite.Sprite):
     width = 80          # Width of Pipe piece
     pieceheight = 32    # Height of Pipe piece
-    addInterval = 2000  # Interval of time that must pass before adding in a new pipe
 
     def __init__(self, pipeEndImage, pipeBodyImage):
         self.x = float(windowWidth - 1) # X coordinate of a pipe
@@ -132,17 +124,27 @@ def loadImages():   # function to load images from images folder
 
 # difficulty functions
 def easyMode():
-    difficulty = "easy"
+    global pixelSpeed
+    global addInterval
+    pixelSpeed = 0.14
+    addInterval = 2000
 def mediumMode():
-    difficulty = "medium"
+    global pixelSpeed
+    global addInterval
+    pixelSpeed = 0.19
+    addInterval = 1800
 def hardMode():
-    difficulty = "hard"
+    global pixelSpeed
+    global addInterval
+    pixelSpeed = 0.25
+    addInterval = 1350
+
 
  
 # main function that houses the game logic
 def main():
     pygame.init()
-    displaySurface = pygame.display.set_mode((windowWidth,windowHeight), pygame.FULLSCREEN) # setup display
+    displaySurface = pygame.display.set_mode((windowWidth,windowHeight)) # setup display
     pygame.display.set_caption('Flappy Bird') # set window title
 
     clock = pygame.time.Clock() # create clock to track ticks
@@ -163,7 +165,7 @@ def main():
     while not done: # while game is running
         clock.tick(FPS) # tick clock according to fps
 
-        if not (paused or frameClock % ((FPS * Pipes.addInterval)/1000)):
+        if not (paused or frameClock % ((FPS * addInterval)/1000)):
             pipeImages = Pipes(images['pipeEndImage'], images['pipeBodyImage'])
             pipes.append(pipeImages)
             
@@ -248,4 +250,3 @@ if __name__ == '__main__':
     window.geometry("800x480")
     myMenu = Menu(window)   
     window.mainloop()
-    main()
