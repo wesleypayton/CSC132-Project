@@ -22,8 +22,17 @@ GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 DEBUG = False
 
-FPS = 60             
-pixelSpeed = 0.18       # Speed at which the game plays
+difficulty = "medium"
+FPS = 60
+if difficulty == "easy":
+    pixelSpeed = 0.14
+elif difficulty == "medium":
+    pixelSpeed = 0.18
+elif difficulty == "hard":
+    pixelSpeed = 0.45
+
+
+#pixelSpeed = 0.18       # Speed at which the game plays
 windowWidth = 400 * 2   # Size of window
 windowHeight= 480
 
@@ -121,6 +130,15 @@ def loadImages():   # function to load images from images folder
             'pipeEndImage': loadImage('pipeendimage.png'),
             'background': loadImage('background.png')}
 
+# difficulty functions
+def easyMode():
+    difficulty = "easy"
+def mediumMode():
+    difficulty = "medium"
+def hardMode():
+    difficulty = "hard"
+
+ 
 # main function that houses the game logic
 def main():
     pygame.init()
@@ -129,8 +147,9 @@ def main():
 
     clock = pygame.time.Clock() # create clock to track ticks
     scoreFont = pygame.font.SysFont(None, 32, bold=True) # set default font
+    
     images = loadImages() # setup images
-
+    
     # create bird instance and center on screen
     bird = Bird(50, int(windowHeight/2 - Bird.HEIGHT/2), 2, (images['birdimage']))
 
@@ -201,23 +220,32 @@ def main():
     print('Game Over! Score: %i' % score)
     pygame.quit()
 
-class App(Frame):
+class Menu(Frame):
+
     def __init__(self,master):
         Frame.__init__(self,master)
-        self.button1 = Button(master, bg="Yellow", font="Helvetica", command=main)
+       
+        self.button1 = Button(master, bg="deep sky blue", activebackground="medium blue", font="Helvetica", height=5, width=42, command=main)
         self.button1.config(text="Play game")
-        self.button1.grid(row=0,column=0)
-        self.button2 = Button(master, bg="Yellow", font="Helvetica")
-        self.button2.config(text="Difficulty")
-        self.button2.grid(row=1,column=0)
+        self.button1.pack()
 
-window = Tk()
-window.geometry("550x300")
-myApp = App(window)
-window.mainloop()
+        self.button2 = Button(master, bg="green2", activebackground="dark green", font="Helvetica", height=5, width=42, command = easyMode)
+        self.button2.config(text="Easy")
+        self.button2.pack()
+
+        self.button3 = Button(master, bg="yellow2", activebackground="chocolate3", font="Helvetica", height=5, width=42, command = mediumMode)
+        self.button3.config(text="Medium")
+        self.button3.pack()
+
+        self.button4 = Button(master, bg="red", activebackground="red4", font="Helvetica", height=5, width=42, command = hardMode)
+        self.button4.config(text="Hard")
+        self.button4.pack()
+    
 
 if __name__ == '__main__':
+    window = Tk()
+    window.title("Flappy Bird")
+    window.geometry("800x480")
+    myMenu = Menu(window)   
+    window.mainloop()
     main()
-
-            
-
