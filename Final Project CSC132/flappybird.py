@@ -144,7 +144,7 @@ def hardMode():
 # main function that houses the game logic
 def main():
     pygame.init()
-    displaySurface = pygame.display.set_mode((windowWidth,windowHeight)) # setup display
+    displaySurface = pygame.display.set_mode((windowWidth,windowHeight), pygame.FULLSCREEN) # setup display
     pygame.display.set_caption('Flappy Bird') # set window title
 
     clock = pygame.time.Clock() # create clock to track ticks
@@ -222,7 +222,7 @@ def main():
     print('Game Over! Score: %i' % score)
     pygame.quit()
 
-class Menu(Frame):
+class App(Frame):
 
     def __init__(self,master):
         Frame.__init__(self,master)
@@ -248,5 +248,5 @@ if __name__ == '__main__':
     window = Tk()
     window.title("Flappy Bird")
     window.geometry("800x480")
-    myMenu = Menu(window)   
+    myApp = App(window)   
     window.mainloop()
