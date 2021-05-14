@@ -1,0 +1,6 @@
+Parts List:
+Raspberry Pi
+GPIO Breadboard
+GPIO Button
+2 GPIO Wires
+Cardboard
