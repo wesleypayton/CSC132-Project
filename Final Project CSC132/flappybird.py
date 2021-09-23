@@ -3,7 +3,6 @@
 # Group Members: 
 #  Elijah Payton
 #  Xandria Kline
-#  Fisher Hall
 # Purpose: Flappy Bird Game where player controls 3 inputs
 #############################
 
